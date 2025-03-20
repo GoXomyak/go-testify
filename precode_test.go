@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMainHandlerWhenOk(t *testing.T) {
@@ -16,8 +17,8 @@ func TestMainHandlerWhenOk(t *testing.T) {
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
-	assert.NotEmpty(t, responseRecorder.Body.String())
+	require.Equal(t, http.StatusOK, responseRecorder.Code)
+	assert.NotEmpty(t, responseRecorder.Body)
 }
 
 func TestMainHandlerWhenWrongCity(t *testing.T) {
@@ -29,8 +30,8 @@ func TestMainHandlerWhenWrongCity(t *testing.T) {
 	handler.ServeHTTP(responseRecorder, req)
 
 	expected := `wrong city value`
-	assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
-	assert.Equal(t, expected, responseRecorder.Body.String())
+	require.Equal(t, http.StatusBadRequest, responseRecorder.Code)
+	assert.Equal(t, expected, responseRecorder.Body)
 }
 
 func TestMainHandlerWhenCountMoreThanTotal(t *testing.T) {
@@ -43,9 +44,9 @@ func TestMainHandlerWhenCountMoreThanTotal(t *testing.T) {
 
 	body := responseRecorder.Body.String()
 
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
-	require.NotEmpty(t, body)
-	
+	require.Equal(t, http.StatusOK, responseRecorder.Code)
+	assert.NotEmpty(t, body)
+
 	list := strings.Split(body, ",")
 
 	assert.Len(t, list, totalCount)
